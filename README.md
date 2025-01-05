@@ -21,7 +21,7 @@ YamanApp, Adıyaman şehrini keşfetmek isteyenler için geliştirilmiş kapsaml
 1. Flutter SDK'yı yükleyin
 2. Projeyi klonlayın:
 ```bash
-git clone https://github.com/yourusername/YamanApp.git
+git clone https://github.com/bekirdogru00/YamanApp.git
 ```
 3. Bağımlılıkları yükleyin:
 ```bash
@@ -54,12 +54,10 @@ Bu proje MIT lisansı altında lisanslanmıştır - detaylar için [LICENSE](LIC
 
 ## İletişim
 
-- Proje sorumlusu: [İsminiz]
-- E-posta: [E-posta adresiniz]
-- Proje linki: https://github.com/yourusername/YamanApp
+- Proje sorumlusu: [Bekir Doğru]
+- E-posta: [bekirdoqr@gmail.com]
+- Proje linki: https://github.com/bekirdogru00/YamanApp
 
 ## Teşekkürler
 
-- Flutter ekibine
-- Material Design ekibine
-- Tüm katkıda bulunanlara
+
