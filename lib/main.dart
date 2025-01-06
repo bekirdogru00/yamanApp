@@ -1,130 +1,66 @@
 import 'package:flutter/material.dart';
-import 'pages/home_page.dart';
-import 'pages/places_page.dart';
-import 'pages/restaurants_page.dart';
-import 'pages/jobs_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'pages/weather_page.dart';
+import 'pages/business_page.dart';
 import 'pages/news_page.dart';
-import 'pages/admin/admin_page.dart';
-import 'pages/splash_screen.dart';
+import 'pages/places_page.dart';
+import 'pages/home_page.dart';
+import 'pages/pharmacy_page.dart';
+import 'pages/login_page.dart';
+import 'pages/profile_page.dart';
+import 'dart:async';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final isAdmin = prefs.getBool('isAdmin') ?? false;
+  runApp(MyApp(isAdmin: isAdmin));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isAdmin;
+  const MyApp({Key? key, required this.isAdmin}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Adıyaman Rehberi',
-      debugShowCheckedModeBanner: false,
+      title: 'YamanApp',
       theme: ThemeData(
-        colorScheme: ColorScheme.light(
-          primary: const Color(0xFF2E7D32), // Koyu yeşil
-          secondary: const Color(0xFFFFD700), // Altın sarısı
-          tertiary: const Color(0xFF4CAF50), // Orta yeşil
-          background: Colors.white,
-          surface: Colors.white,
-          onPrimary: Colors.white,
-          onSecondary: Colors.black,
-          onBackground: Colors.black,
-          onSurface: Colors.black,
-          primaryContainer: const Color(0xFF81C784), // Açık yeşil
-          secondaryContainer: const Color(0xFFFFF176), // Açık sarı
-        ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: const Color(0xFF2E7D32),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(16),
-            ),
-          ),
-          toolbarHeight: 64,
-          centerTitle: true,
-          titleTextStyle: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        cardTheme: CardTheme(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          color: Colors.white,
-          shadowColor: Colors.green.withOpacity(0.2),
-        ),
-        chipTheme: ChipThemeData(
-          backgroundColor: const Color(0xFF81C784).withOpacity(0.2),
-          labelStyle: const TextStyle(color: Color(0xFF2E7D32)),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF2E7D32), width: 1),
-          ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF2E7D32),
-            textStyle: const TextStyle(fontWeight: FontWeight.bold),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: const Color(0xFF2E7D32),
-          foregroundColor: Colors.white,
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        tabBarTheme: const TabBarTheme(
-          labelColor: Color(0xFF2E7D32),
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Color(0xFFFFD700),
-          indicatorSize: TabBarIndicatorSize.label,
-          labelStyle: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          selectedItemColor: Color(0xFF2E7D32),
-          unselectedItemColor: Colors.grey,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          elevation: 8,
-        ),
-        scaffoldBackgroundColor: Colors.grey[50],
+        primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/home': (context) => const MainScreen(),
-      },
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('tr', 'TR'),
+      ],
+      locale: const Locale('tr', 'TR'),
+      home: MainScreen(initialIsAdmin: isAdmin),
     );
   }
 }
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final bool initialIsAdmin;
+  const MainScreen({Key? key, required this.initialIsAdmin}) : super(key: key);
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  late bool _isAdmin;
 
-  static const List<Widget> _pages = <Widget>[
-    HomePage(),
-    PlacesPage(),
-    RestaurantsPage(),
-    JobsPage(),
-    NewsPage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _isAdmin = widget.initialIsAdmin;
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -132,56 +68,163 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _openLoginPage() async {
+    if (_isAdmin) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
+
+      if (result == false) {
+        setState(() {
+          _isAdmin = false;
+        });
+      }
+    } else {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+
+      if (result == true) {
+        setState(() {
+          _isAdmin = true;
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isAdmin', true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Admin olarak giriş yapıldı')),
+        );
+      }
+    }
+  }
+
+  String _getTitle() {
+    switch (_selectedIndex) {
+      case 0:
+        return 'YamanApp';
+      case 1:
+        return 'Gezilecek Yerler';
+      case 2:
+        return 'İşletmeler';
+      case 3:
+        return 'Hava Durumu';
+      case 4:
+        return 'Haberler';
+      case 5:
+        return 'Eczaneler';
+      default:
+        return 'YamanApp';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminPage()),
-          );
-        },
-        child: const Icon(Icons.admin_panel_settings),
+      appBar: AppBar(
+        title: Text(_getTitle()),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isAdmin ? Icons.account_circle : Icons.login,
+              color: _isAdmin ? Colors.green : null,
+            ),
+            onPressed: _openLoginPage,
+          ),
+        ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Ana Sayfa',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.place),
-              label: 'Gezilecek Yerler',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.restaurant),
-              label: 'Restoranlar',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.work),
-              label: 'İş İlanları',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.newspaper),
-              label: 'Haberler',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-        ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          HomePage(onNavigate: _onItemTapped),
+          const PlacesPage(),
+          const BusinessPage(),
+          const WeatherPage(),
+          const NewsPage(),
+          const PharmacyPage(),
+        ],
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Ana Sayfa',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.place),
+            label: 'Gezilecek Yerler',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'İşletmeler',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wb_sunny),
+            label: 'Hava Durumu',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.newspaper),
+            label: 'Haberler',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_pharmacy),
+            label: 'Eczaneler',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+      floatingActionButton: _isAdmin
+          ? FloatingActionButton(
+              onPressed: () {
+                // Admin işlemleri için menü açılacak
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.add),
+                          title: const Text('Yeni İçerik Ekle'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            // Yeni içerik ekleme sayfasına yönlendirme
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.edit),
+                          title: const Text('İçerikleri Düzenle'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            // İçerik düzenleme sayfasına yönlendirme
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.logout),
+                          title: const Text('Admin Çıkışı'),
+                          onTap: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('isAdmin', false);
+                            setState(() {
+                              _isAdmin = false;
+                            });
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Admin oturumu kapatıldı')),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              child: const Icon(Icons.admin_panel_settings),
+            )
+          : null,
     );
   }
 }

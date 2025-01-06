@@ -1,43 +1,13 @@
 import 'package:flutter/material.dart';
 
-class PlacesPage extends StatefulWidget {
-  const PlacesPage({Key? key}) : super(key: key);
-
-  @override
-  _PlacesPageState createState() => _PlacesPageState();
-}
-
-class _PlacesPageState extends State<PlacesPage> {
-  final List<Map<String, dynamic>> places = [
-    {
-      'name': 'Nemrut Dağı',
-      'description': 'UNESCO Dünya Mirası Listesinde yer alan antik kent',
-      'image': 'https://example.com/nemrut.jpg',
-      'rating': 4.8,
-      'location': 'Kahta, Adıyaman',
-    },
-    {
-      'name': 'Perre Antik Kenti',
-      'description': 'Roma döneminden kalma önemli bir antik kent',
-      'image': 'https://example.com/perre.jpg',
-      'rating': 4.5,
-      'location': 'Merkez, Adıyaman',
-    },
-    {
-      'name': 'Cendere Köprüsü',
-      'description': 'Roma döneminden kalma tarihi köprü',
-      'image': 'https://example.com/cendere.jpg',
-      'rating': 4.6,
-      'location': 'Kahta, Adıyaman',
-    },
-  ];
+class BusinessPage extends StatelessWidget {
+  const BusinessPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: places.length,
+      itemCount: 10,
       itemBuilder: (context, index) {
-        final place = places[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
@@ -46,7 +16,7 @@ class _PlacesPageState extends State<PlacesPage> {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
-                  place['image'],
+                  'https://example.com/business$index.jpg',
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -69,7 +39,7 @@ class _PlacesPageState extends State<PlacesPage> {
                       children: [
                         Expanded(
                           child: Text(
-                            place['name'],
+                            'İşletme ${index + 1}',
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -84,7 +54,7 @@ class _PlacesPageState extends State<PlacesPage> {
                               size: 20,
                             ),
                             Text(
-                              ' ${place['rating']}',
+                              ' ${4 + (index % 10) / 10}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -96,8 +66,10 @@ class _PlacesPageState extends State<PlacesPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      place['description'],
-                      style: const TextStyle(fontSize: 16),
+                      'İşletme açıklaması burada yer alacak. Bu kısımda işletmenin kısa bir tanıtımı bulunacak.',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -109,10 +81,37 @@ class _PlacesPageState extends State<PlacesPage> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          place['location'],
+                          'Adıyaman, Merkez',
                           style: TextStyle(
                             color: Colors.grey[600],
                           ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () {
+                            // Telefon açma işlemi
+                          },
+                          icon: const Icon(Icons.phone),
+                          label: const Text('Ara'),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            // Yol tarifi
+                          },
+                          icon: const Icon(Icons.directions),
+                          label: const Text('Yol Tarifi'),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            // Web sitesi
+                          },
+                          icon: const Icon(Icons.language),
+                          label: const Text('Web Sitesi'),
                         ),
                       ],
                     ),
