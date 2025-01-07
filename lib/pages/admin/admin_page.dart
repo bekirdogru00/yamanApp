@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'add_place_page.dart';
 import 'add_restaurant_page.dart';
 import 'add_promotion_page.dart';
-import 'add_job_page.dart';
+import 'add_news_page.dart';
 
 class AdminPage extends StatelessWidget {
   const AdminPage({super.key});
@@ -18,6 +18,17 @@ class AdminPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildAdminCard(
+              context,
+              'Haber Ekle',
+              Icons.newspaper,
+              'Yeni haber veya duyuru ekle',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddNewsPage()),
+              ),
+            ),
+            const SizedBox(height: 16),
             _buildAdminCard(
               context,
               'Gezilecek Yer Ekle',
@@ -48,17 +59,6 @@ class AdminPage extends StatelessWidget {
               () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AddPromotionPage()),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildAdminCard(
-              context,
-              'İş İlanı Ekle',
-              Icons.work,
-              'Yeni iş ilanı ekle',
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddJobPage()),
               ),
             ),
           ],

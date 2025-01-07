@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'admin/admin_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _AdminLoginPageState createState() => _AdminLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AdminLoginPageState extends State<AdminLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _obscurePassword = true;
+  String? _errorMessage;
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
+        _errorMessage = null;
       });
 
       try {
@@ -27,28 +27,26 @@ class _LoginPageState extends State<LoginPage> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
-
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminPage()),
-          );
-        }
       } on FirebaseAuthException catch (e) {
-        String message;
-        if (e.code == 'user-not-found') {
-          message = 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.';
-        } else if (e.code == 'wrong-password') {
-          message = 'Hatalı şifre girdiniz.';
-        } else {
-          message = 'Giriş yapılamadı: ${e.message}';
-        }
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
-        }
+        setState(() {
+          switch (e.code) {
+            case 'user-not-found':
+              _errorMessage = 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı';
+              break;
+            case 'wrong-password':
+              _errorMessage = 'Hatalı şifre';
+              break;
+            case 'invalid-email':
+              _errorMessage = 'Geçersiz e-posta adresi';
+              break;
+            default:
+              _errorMessage = 'Bir hata oluştu: ${e.message}';
+          }
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'Bir hata oluştu: $e';
+        });
       } finally {
         if (mounted) {
           setState(() {
@@ -73,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text('Admin Girişi'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -81,21 +79,30 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const SizedBox(height: 32),
               // Logo veya ikon
-              Icon(
-                Icons.admin_panel_settings,
-                size: 80,
-                color: Theme.of(context).colorScheme.primary,
+              Container(
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue.shade100,
+                ),
+                child: const Icon(
+                  Icons.admin_panel_settings,
+                  size: 60,
+                  color: Colors.blue,
+                ),
               ),
               const SizedBox(height: 32),
+
               // E-posta alanı
               TextFormField(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'E-posta',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
                 ),
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Lütfen e-posta adresinizi girin';
@@ -107,25 +114,16 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
               const SizedBox(height: 16),
+
               // Şifre alanı
               TextFormField(
                 controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Şifre',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.lock),
                 ),
+                obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Lütfen şifrenizi girin';
@@ -137,6 +135,21 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
               const SizedBox(height: 24),
+
+              // Hata mesajı
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
               // Giriş butonu
               ElevatedButton(
                 onPressed: _isLoading ? null : _login,

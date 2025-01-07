@@ -1,25 +1,29 @@
 name: yamanapp
-description: Adıyaman şehir rehberi uygulaması
+description: A new Flutter project.
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.0.6 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  http: ^1.1.0
-  geolocator: ^10.0.0
-  google_maps_flutter: ^2.4.0
-  cached_network_image: ^3.2.3
-  shared_preferences: ^2.3.5
-  provider: ^6.0.5
-  url_launcher: ^6.1.14
   intl: ^0.19.0
+  cupertino_icons: ^1.0.2
+  cached_network_image: ^3.3.1
+  shared_preferences: ^2.2.2
+  firebase_core: ^2.27.1
+  firebase_auth: ^4.17.9
+  cloud_firestore: ^4.15.9
+  firebase_storage: ^11.6.10
+  image_picker: ^1.0.7
+  url_launcher: ^6.2.5
+  geolocator: ^11.0.0
+  http: ^1.2.1
+  timeago: ^3.6.0
 
 dev_dependencies:
   flutter_test:
@@ -28,4 +32,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
 

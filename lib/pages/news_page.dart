@@ -1,154 +1,182 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/firebase_service.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:intl/intl.dart';
 
-class NewsPage extends StatelessWidget {
+class NewsPage extends StatefulWidget {
   const NewsPage({Key? key}) : super(key: key);
+
+  @override
+  State<NewsPage> createState() => _NewsPageState();
+}
+
+class _NewsPageState extends State<NewsPage> {
+  final FirebaseService _firebaseService = FirebaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    timeago.setLocaleMessages('tr', timeago.TrMessages());
+  }
+
+  String _formatTimeAgo(DateTime date) {
+    return timeago.format(date, locale: 'tr');
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          const TabBar(
+      length: 5,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Haberler'),
+          bottom: const TabBar(
+            isScrollable: true,
             tabs: [
-              Tab(text: 'Son Dakika'),
-              Tab(text: 'Yerel'),
+              Tab(text: 'Tümü'),
+              Tab(text: 'Belediye'),
               Tab(text: 'Spor'),
+              Tab(text: 'Kültür'),
+              Tab(text: 'Turizm'),
             ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildNewsList(),
-                _buildNewsList(),
-                _buildNewsList(),
-              ],
-            ),
-          ),
-        ],
+        ),
+        body: TabBarView(
+          children: [
+            _buildNewsList('Tümü'),
+            _buildNewsList('Belediye'),
+            _buildNewsList('Spor'),
+            _buildNewsList('Kültür'),
+            _buildNewsList('Turizm'),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildNewsList() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                child: Image.network(
-                  'https://example.com/news$index.jpg',
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image, size: 50),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+  Widget _buildNewsList(String category) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: category == 'Tümü'
+          ? _firebaseService.getNews()
+          : FirebaseFirestore.instance
+              .collection('news')
+              .where('category', isEqualTo: category)
+              .orderBy('publishDate', descending: true)
+              .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Hata: ${snapshot.error}'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('Henüz haber bulunmuyor'));
+        }
+
+        return ListView.builder(
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (context, index) {
+            final doc = snapshot.data!.docs[index];
+            final data = doc.data() as Map<String, dynamic>;
+            final publishDate = (data['publishDate'] as Timestamp).toDate();
+
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (data['imageUrl'] != null && data['imageUrl'].toString().isNotEmpty)
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Image.network(
+                          data['imageUrl'],
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(Icons.error_outline, size: 50),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[100],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            _getCategory(index),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                data['category'] ?? '',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
+                            Text(
+                              _formatTimeAgo(publishDate),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          data['title'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(height: 8),
                         Text(
-                          '2 saat önce',
+                          data['content'] ?? '',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.grey[600],
-                            fontSize: 12,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Haber Başlığı $index',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Haber detayı burada yer alacak. Bu kısımda haberin kısa bir özeti bulunacak.',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                        const SizedBox(height: 16),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(Icons.thumb_up_outlined, color: Colors.grey[600]),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Beğen',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                              ),
+                            TextButton(
+                              onPressed: () {
+                                // TODO: Haber detay sayfasına yönlendirme
+                              },
+                              child: const Text('Devamını Oku'),
                             ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            Icon(Icons.share_outlined, color: Colors.grey[600]),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Paylaş',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            // Haberin detay sayfasına yönlendirme
-                          },
-                          child: const Text('Devamını Oku'),
-                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
-  }
-
-  String _getCategory(int index) {
-    final categories = ['Gündem', 'Spor', 'Ekonomi', 'Sağlık', 'Eğitim'];
-    return categories[index % categories.length];
   }
 } 

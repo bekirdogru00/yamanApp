@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PlaceDetailPage extends StatelessWidget {
   final String title;
@@ -45,9 +46,13 @@ class PlaceDetailPage extends StatelessWidget {
               title: Text(title),
               background: Hero(
                 tag: 'place_$title',
-                child: Image.asset(
-                  imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
             ),

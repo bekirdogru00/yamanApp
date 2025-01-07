@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149530670512",
+    "project_id": "adimobil-7a542",
+    "storage_bucket": "adimobil-7a542.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149530670512:android:4fc26093fa0b44e32b1275",
+        "android_client_info": {
+          "package_name": "com.example.yamanapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEXLMT9d30YhE-EDOhDPbPacqMNm6HXxI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
