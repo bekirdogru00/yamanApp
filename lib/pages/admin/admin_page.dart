@@ -3,6 +3,7 @@ import 'add_place_page.dart';
 import 'add_restaurant_page.dart';
 import 'add_promotion_page.dart';
 import 'add_news_page.dart';
+import 'add_durak_page.dart';
 
 class AdminPage extends StatelessWidget {
   const AdminPage({super.key});
@@ -18,6 +19,17 @@ class AdminPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildAdminCard(
+              context,
+              'Durak Ekle',
+              Icons.directions_bus_filled,
+              'Dolmuş durağı ekle',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddDurakPage()),
+              ),
+            ),
+            const SizedBox(height: 16),
             _buildAdminCard(
               context,
               'Haber Ekle',

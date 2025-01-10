@@ -6,7 +6,7 @@ import 'news_page.dart';
 import 'places_page.dart';
 import 'business_page.dart';
 import 'pharmacy_page.dart';
-import 'contact_page.dart';
+import 'durak_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,17 +22,17 @@ class _HomePageState extends State<HomePage> {
 
   final List<Map<String, String>> advertisements = [
     {
-      'image': 'https://example.com/ad1.jpg',
+      'image': 'https://picsum.photos/800/400?random=1',
       'title': 'Yeni Açılan Kafe',
       'description': 'İlk hafta %20 indirim!',
     },
     {
-      'image': 'https://example.com/ad2.jpg',
+      'image': 'https://picsum.photos/800/400?random=2',
       'title': 'Yemek Festivali',
       'description': 'Bu hafta sonu kaçırmayın!',
     },
     {
-      'image': 'https://example.com/ad3.jpg',
+      'image': 'https://picsum.photos/800/400?random=3',
       'title': 'Özel Menü',
       'description': 'Sınırlı süre için özel fiyatlar',
     },
@@ -230,10 +230,10 @@ class _HomePageState extends State<HomePage> {
                 ),
                 _buildMenuCard(
                   context,
-                  'İletişim',
-                  Icons.contact_phone,
+                  'Duraklar',
+                  Icons.directions_bus,
                   Colors.teal,
-                  const ContactPage(),
+                  const DurakPage(),
                 ),
               ],
             ),

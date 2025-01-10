@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/firebase_service.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:intl/intl.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({Key? key}) : super(key: key);
@@ -89,7 +90,9 @@ class _NewsPageState extends State<NewsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (data['imageUrl'] != null && data['imageUrl'].toString().isNotEmpty)
+                  if (data['videoUrl'] != null && data['videoUrl'].toString().isNotEmpty)
+                    _buildYoutubePlayer(data['videoUrl'])
+                  else if (data['imageUrl'] != null && data['imageUrl'].toString().isNotEmpty)
                     ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                       child: AspectRatio(
@@ -177,6 +180,30 @@ class _NewsPageState extends State<NewsPage> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildYoutubePlayer(String url) {
+    String? videoId = YoutubePlayerController.convertUrlToId(url);
+    if (videoId == null) return const SizedBox();
+
+    final controller = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
+        mute: false,
+      ),
+    );
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: YoutubePlayer(
+          controller: controller,
+        ),
+      ),
     );
   }
 } 

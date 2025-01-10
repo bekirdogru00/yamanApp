@@ -114,12 +114,14 @@ class FirebaseService {
     required String category,
     required DateTime publishDate,
     String? imageUrl,
+    String? videoUrl,
   }) async {
     try {
       debugPrint('Haber ekleme başladı');
       debugPrint('Başlık: $title');
       debugPrint('Kategori: $category');
       debugPrint('Resim URL: $imageUrl');
+      debugPrint('Video URL: $videoUrl');
       
       final data = {
         'title': title,
@@ -127,6 +129,7 @@ class FirebaseService {
         'category': category,
         'publishDate': Timestamp.fromDate(publishDate),
         'imageUrl': imageUrl ?? '',
+        'videoUrl': videoUrl ?? '',
         'createdAt': FieldValue.serverTimestamp(),
       };
       

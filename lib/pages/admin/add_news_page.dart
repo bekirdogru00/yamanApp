@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../services/firebase_service.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class AddNewsPage extends StatefulWidget {
   const AddNewsPage({super.key});
@@ -15,9 +16,11 @@ class _AddNewsPageState extends State<AddNewsPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _imageUrlController = TextEditingController();
+  final _videoUrlController = TextEditingController();
   String _selectedCategory = 'Genel';
   bool _isLoading = false;
   final _firebaseService = FirebaseService();
+  YoutubePlayerController? _youtubeController;
 
   final List<String> _categories = [
     'Genel',
@@ -26,6 +29,40 @@ class _AddNewsPageState extends State<AddNewsPage> {
     'Kültür',
     'Turizm',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _videoUrlController.addListener(_updateYoutubePreview);
+  }
+
+  void _updateYoutubePreview() {
+    final url = _videoUrlController.text;
+    if (url.isEmpty) {
+      setState(() {
+        _youtubeController = null;
+      });
+      return;
+    }
+
+    final videoId = YoutubePlayerController.convertUrlToId(url);
+    if (videoId != null) {
+      setState(() {
+        _youtubeController = YoutubePlayerController.fromVideoId(
+          videoId: videoId,
+          params: const YoutubePlayerParams(
+            showControls: true,
+            showFullscreenButton: true,
+            mute: false,
+          ),
+        );
+      });
+    } else {
+      setState(() {
+        _youtubeController = null;
+      });
+    }
+  }
 
   Future<void> _saveNews() async {
     if (_formKey.currentState!.validate()) {
@@ -40,6 +77,7 @@ class _AddNewsPageState extends State<AddNewsPage> {
           category: _selectedCategory,
           publishDate: DateTime.now(),
           imageUrl: _imageUrlController.text.isNotEmpty ? _imageUrlController.text : null,
+          videoUrl: _videoUrlController.text.isNotEmpty ? _videoUrlController.text : null,
         );
 
         if (mounted) {
@@ -111,6 +149,39 @@ class _AddNewsPageState extends State<AddNewsPage> {
                       },
                     ),
                     const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _videoUrlController,
+                      decoration: const InputDecoration(
+                        labelText: 'YouTube Video URL (İsteğe bağlı)',
+                        border: OutlineInputBorder(),
+                        hintText: 'https://www.youtube.com/watch?v=VIDEO_ID',
+                      ),
+                      validator: (value) {
+                        if (value != null && value.isNotEmpty) {
+                          final videoId = YoutubePlayerController.convertUrlToId(value);
+                          if (videoId == null) {
+                            return 'Lütfen geçerli bir YouTube URL\'si girin';
+                          }
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    if (_youtubeController != null)
+                      Container(
+                        height: 200,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: YoutubePlayer(
+                            controller: _youtubeController!,
+                          ),
+                        ),
+                      ),
                     if (_imageUrlController.text.isNotEmpty)
                       Container(
                         height: 200,
@@ -184,6 +255,8 @@ class _AddNewsPageState extends State<AddNewsPage> {
     _titleController.dispose();
     _contentController.dispose();
     _imageUrlController.dispose();
+    _videoUrlController.dispose();
+    _youtubeController?.close();
     super.dispose();
   }
 } 

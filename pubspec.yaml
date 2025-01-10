@@ -24,14 +24,26 @@ dependencies:
   geolocator: ^11.0.0
   http: ^1.2.1
   timeago: ^3.6.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  youtube_player_iframe: ^4.0.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/adymobilsimge.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/adymobilsimge.png"
 
